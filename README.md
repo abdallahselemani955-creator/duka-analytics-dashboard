@@ -1,25 +1,21 @@
-# 🎈 Blank app template
+# Duka Analytics Dashboard
 
-A simple Streamlit app template for you to modify!
+Dashibodi ya Streamlit inayochota taarifa za mauzo kutoka MongoDB Atlas.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+## Kuendesha ndani ya kompyuta
 
-### How to run it on your own machine
+1. Sakinisha maktaba zilizo kwenye `requirements.txt`.
+2. Weka URI ya MongoDB kwenye `.streamlit/secrets.toml` kwa muundo huu:
 
-Prerequisite: install `uv` if you don't already have it.
-
+```toml
+[mongo]
+uri = "weka-uri-yako-hapa"
 ```
-$ curl -LsSf https://astral.sh/uv/install.sh | sh
-```
 
-1. Sync the dependencies
+3. Endesha `streamlit run app.py`.
 
-   ```
-   $ uv sync
-   ```
+App hutumia database `duka_db` na collection `mauzo`.
 
-2. Run the app
+## Streamlit Community Cloud
 
-   ```
-   $ uv run streamlit run streamlit_app.py
-   ```
+Weka app kwenye `app.py`, kisha weka `[mongo]` na `uri` kwenye sehemu ya Secrets ya mipangilio ya app. Usipakie `secrets.toml` au faili za credentials kwenye GitHub.
