@@ -56,27 +56,27 @@ if not df_mauzo.empty:
 
   with col1:
     st.subheader("📈 Mauzo Kulingana na Bidhaa")
-    if (
-        "bidhaa" in df_mauzo.columns
-        and "jumla" in df_mauzo.columns
-        or "bei" in df_mauzo.columns
-    ):
-      # Hapa unaweza kubadilisha nguzo kulingana na data zako halisi za wateja/mauzo
+    bidhaa_col = "bidhaa_iliyouzwa" if "bidhaa_iliyouzwa" in df_mauzo.columns else "bidhaa" if "bidhaa" in df_mauzo.columns else None
+    mapato_col = "jumla_bei" if "jumla_bei" in df_mauzo.columns else "jumla" if "jumla" in df_mauzo.columns else "bei" if "bei" in df_mauzo.columns else None
+    if bidhaa_col and mapato_col:
+      df_bidhaa = df_mauzo.groupby(bidhaa_col, as_index=False)[mapato_col].sum()
       fig_bar = px.bar(
-          df_mauzo,
-          x=df_mauzo.columns[0],
-          y=df_mauzo.columns[1] if len(df_mauzo.columns) > 1 else None,
-          title="Uchambuzi wa Bar Chart",
+          df_bidhaa,
+          x=bidhaa_col,
+          y=mapato_col,
+          title="Mapato kwa Bidhaa",
       )
       st.plotly_chart(fig_bar, width="stretch")
     else:
-      st.info("Tafadhali weka nguzo za bidhaa na bei kwenye MongoDB.")
+      st.info("Tafadhali weka nguzo za bidhaa na mapato kwenye MongoDB.")
 
   with col2:
     st.subheader("🔄 Muhtasari wa Uwiano")
+    bidhaa_col = "bidhaa_iliyouzwa" if "bidhaa_iliyouzwa" in df_mauzo.columns else df_mauzo.columns[0]
     fig_donut = px.pie(
         df_mauzo,
-        names=df_mauzo.columns[0] if not df_mauzo.empty else [],
+        names=bidhaa_col,
+        values="idadi" if "idadi" in df_mauzo.columns else None,
         hole=0.4,
         title="Uwiano wa Takwimu",
     )
@@ -84,7 +84,13 @@ if not df_mauzo.empty:
 
   # Mchoro wa mstari (Line chart) chini
   st.subheader("📉 Mwenendo wa Miamala")
-  fig_line = px.line(df_mauzo, title="Mwenendo kwa Ujumla")
+  tarehe_col = "tarehe_ya_mauzo" if "tarehe_ya_mauzo" in df_mauzo.columns else None
+  mapato_col = "jumla_bei" if "jumla_bei" in df_mauzo.columns else "jumla" if "jumla" in df_mauzo.columns else "bei" if "bei" in df_mauzo.columns else None
+  if tarehe_col and mapato_col:
+    df_trend = df_mauzo.groupby(tarehe_col, as_index=False)[mapato_col].sum()
+    fig_line = px.line(df_trend, x=tarehe_col, y=mapato_col, title="Mapato kwa Tarehe")
+  else:
+    fig_line = px.line(df_mauzo, title="Mwenendo kwa Ujumla")
   st.plotly_chart(fig_line, width="stretch")
 
 else:
