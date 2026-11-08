@@ -2,6 +2,7 @@ import pandas as pd
 from pymongo import MongoClient
 import streamlit as st
 import plotly.express as px
+import os
 
 # 1. Usanidi wa Ukurasa wa Streamlit
 st.set_page_config(
@@ -16,7 +17,16 @@ st.markdown("Dashibodi ya uchambuzi wa mauzo na bidhaa kutoka MongoDB Atlas.")
 @st.cache_resource
 def init_connection():
   # Inasoma connection string kutoka kwenye Streamlit secrets au local .streamlit/secrets.toml
-  uri = st.secrets["mongo"]["uri"]
+  uri = None
+  try:
+    uri = st.secrets["mongo"]["uri"]
+  except Exception:
+    try:
+      uri = st.secrets["MONGODB_URI"]
+    except Exception:
+      uri = os.environ.get("MONGODB_URI")
+  if not uri:
+    raise RuntimeError("MISSING_MONGODB_URI")
   client = MongoClient(uri)
   return client
 
@@ -39,8 +49,11 @@ try:
     # Data ya mfano kama mkusanyo haujapatikana bado
     df_mauzo = pd.DataFrame()
 
-except Exception:
-  st.error("Imeshindwa kuunganisha na MongoDB Atlas. Hakiki Streamlit Secrets na ruhusa za mtandao za Atlas.")
+except Exception as e:
+  if isinstance(e, RuntimeError) and str(e) == "MISSING_MONGODB_URI":
+    st.error("Weka URI kwenye Streamlit Secrets kama [mongo] uri = \"...\" au MONGODB_URI = \"...\".")
+  else:
+    st.error("Imeshindwa kuunganisha na MongoDB Atlas. Hakiki URI/credentials na ruhusa za mtandao za Atlas.")
   df_mauzo = pd.DataFrame()
 
 # 3. Muundo wa Dashibodi (Dashboard Layout)
